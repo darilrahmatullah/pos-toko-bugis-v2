@@ -194,20 +194,6 @@ const Signup: React.FC = () => {
               </Link>
             </p>
           </div>
-
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">Demo akun yang tersedia:</p>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span>Admin:</span>
-                <span className="font-mono">admin / admin123</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Staff:</span>
-                <span className="font-mono">staff / staff123</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
