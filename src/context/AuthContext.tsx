@@ -44,8 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setIsLoading(true);
       
-      // For demo purposes, we'll use simple password comparison
-      // In production, you should use proper password hashing
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
@@ -53,13 +51,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error) {
-        console.error('Login error:', error);
+        if (error.code === 'PGRST116') {
+          toast.error('Username tidak ditemukan');
+        } else {
+          console.error('Login error:', error);
+          toast.error('Terjadi kesalahan saat login');
+        }
         return false;
       }
 
-      // Simple password check (in production, use bcrypt or similar)
-      const isValidPassword = (username === 'admin' && password === 'admin123') ||
-                             (username === 'staff' && password === 'staff123');
+      // Simple password check - in production, use bcrypt or similar
+      const isValidPassword = users.password === password;
 
       if (users && isValidPassword) {
         const userData: User = {
@@ -72,10 +74,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(userData);
         localStorage.setItem('tobaku_user', JSON.stringify(userData));
+        toast.success(`Selamat datang, ${userData.name}!`);
         return true;
+      } else {
+        toast.error('Password salah');
+        return false;
       }
 
-      return false;
     } catch (error) {
       console.error('Login error:', error);
       toast.error('Terjadi kesalahan saat login');
@@ -90,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       
       // Check if username already exists
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUser } = await supabase
         .from('users')
         .select('username')
         .eq('username', userData.username)
@@ -102,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // In production, hash the password before storing
-      const { data: newUser, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('users')
         .insert([{
           name: userData.name,
@@ -110,8 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           password: userData.password, // In production, hash this
           role: userData.role
         }])
-        .select()
-        .single();
 
       if (insertError) {
         console.error('Signup error:', insertError);

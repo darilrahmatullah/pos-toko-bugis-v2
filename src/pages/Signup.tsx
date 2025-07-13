@@ -5,7 +5,7 @@ import { Store, Eye, EyeOff, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Signup: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signup } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -46,18 +46,23 @@ const Signup: React.FC = () => {
     }
 
     try {
-      // Untuk demo, kita akan menampilkan pesan sukses
-      // Dalam implementasi nyata, ini akan mengirim data ke Supabase
-      toast.success('Akun berhasil dibuat! Silakan login dengan akun demo yang tersedia.');
-      
-      // Reset form
-      setFormData({
-        name: '',
-        username: '',
-        password: '',
-        confirmPassword: '',
-        role: 'staff'
+      const success = await signup({
+        name: formData.name,
+        username: formData.username,
+        password: formData.password,
+        role: formData.role
       });
+
+      if (success) {
+        // Reset form
+        setFormData({
+          name: '',
+          username: '',
+          password: '',
+          confirmPassword: '',
+          role: 'staff'
+        });
+      }
     } catch (error) {
       toast.error('Terjadi kesalahan saat membuat akun');
     } finally {
