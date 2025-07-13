@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Store, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -93,6 +93,15 @@ const Login: React.FC = () => {
               {isLoading ? 'Masuk...' : 'Masuk'}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Belum punya akun?{' '}
+              <Link to="/signup" className="text-green-600 hover:text-green-700 font-medium">
+                Daftar di sini
+              </Link>
+            </p>
+          </div>
 
           <div className="mt-8 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-2">Demo akun:</p>

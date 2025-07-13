@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 interface AuthContextType {
   user: User | null;
   login: (username: string, password: string) => Promise<boolean>;
+  signup: (userData: { name: string; username: string; password: string; role: 'admin' | 'staff' }) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -84,6 +85,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signup = async (userData: { name: string; username: string; password: string; role: 'admin' | 'staff' }): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      
+      // Check if username already exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', userData.username)
+        .single();
+
+      if (existingUser) {
+        toast.error('Username sudah digunakan');
+        return false;
+      }
+
+      // In production, hash the password before storing
+      const { data: newUser, error: insertError } = await supabase
+        .from('users')
+        .insert([{
+          name: userData.name,
+          username: userData.username,
+          password: userData.password, // In production, hash this
+          role: userData.role
+        }])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Signup error:', insertError);
+        toast.error('Gagal membuat akun');
+        return false;
+      }
+
+      toast.success('Akun berhasil dibuat! Silakan login.');
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.error('Terjadi kesalahan saat membuat akun');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('tobaku_user');
@@ -92,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     user,
     login,
+    signup,
     logout,
     isLoading,
   };
